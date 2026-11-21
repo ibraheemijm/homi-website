@@ -21,6 +21,20 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       <div id="license-download-result" class="request-result" hidden></div>
     </form>
 
+    <div id="payment-submission-panel" hidden>
+      <h2>إرسال إثبات الدفع اليدوي</h2>
+      <p>بعد الاتفاق مع الإدارة على المبلغ، يمكنك إرسال بيانات التحويل أو الدفع النقدي وإرفاق الإيصال. لا يتم اعتماد الدفع تلقائيًا.</p>
+      <form id="payment-proof-form" class="activation-form">
+        <label>طريقة الدفع<select id="payment-method" required><option value="cash">نقدًا</option><option value="bank_transfer">تحويل بنكي</option><option value="other">أخرى</option></select></label>
+        <label>المبلغ المتفق عليه<input id="payment-amount" type="number" min="1" step="1" required /></label>
+        <label>العملة (3 أحرف)<input id="payment-currency" type="text" minlength="3" maxlength="3" value="SDG" dir="ltr" required /></label>
+        <label>مرجع العملية أو ملاحظات<input id="payment-reference" type="text" maxlength="500" /></label>
+        <label>صورة أو PDF للإيصال (حتى 8 MB)<input id="payment-proof" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" /></label>
+        <button class="button button-primary" type="submit">إرسال إثبات الدفع للمراجعة</button>
+        <p id="payment-submission-status" class="form-status" role="status"></p>
+      </form>
+    </div>
+
     <h2>كيف تتم الموافقة؟</h2>
     <ol><li>يراجع فريق Homi بيانات العميل والجهاز.</li><li>تتواصل الإدارة معك لتأكيد تفاصيل الاشتراك وطريقة الدفع اليدوي.</li><li>لا يصدر الترخيص المدفوع ولا يمدد الاشتراك قبل تأكيد الإدارة استلام المبلغ.</li><li>بعد الموافقة، استخدم رقم الطلب أعلاه لتنزيل ملف الترخيص <code>.hlic</code>.</li></ol>
     <div class="notice"><strong>ملاحظة:</strong> لا تُعرض أسعار ثابتة هنا. يتم الاتفاق على تفاصيل الاشتراك مباشرة مع الإدارة.</div>
@@ -38,6 +52,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     const requestIdInput = document.querySelector<HTMLInputElement>("#activation-request-id")!;
     const statusMessage = document.querySelector<HTMLElement>("#activation-status-message")!;
     const licenseResult = document.querySelector<HTMLDivElement>("#license-download-result")!;
+    const paymentPanel = document.querySelector<HTMLDivElement>("#payment-submission-panel")!;
+    const paymentForm = document.querySelector<HTMLFormElement>("#payment-proof-form")!;
+    const paymentStatus = document.querySelector<HTMLElement>("#payment-submission-status")!;
+    const paymentProofInput = document.querySelector<HTMLInputElement>("#payment-proof")!;
 
     uploadForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -68,6 +86,43 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
       }
     });
 
+    paymentForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!apiBase) { paymentStatus.textContent = "خدمة التفعيل غير مرتبطة بعد."; return; }
+      const requestId = requestIdInput.value.trim();
+      const amount = (document.querySelector<HTMLInputElement>("#payment-amount")!).value;
+      const method = (document.querySelector<HTMLSelectElement>("#payment-method")!).value;
+      const currency = (document.querySelector<HTMLInputElement>("#payment-currency")!).value.trim().toUpperCase();
+      const reference = (document.querySelector<HTMLInputElement>("#payment-reference")!).value;
+      const proof = paymentProofInput.files?.[0];
+      if (!requestId || !amount || Number(amount) < 1 || !/^[A-Z]{3}$/.test(currency)) {
+        paymentStatus.textContent = "أدخل رقم الطلب والمبلغ والعملة بصورة صحيحة.";
+        return;
+      }
+      if (proof && proof.size > 8 * 1024 * 1024) {
+        paymentStatus.textContent = "حجم الإيصال يتجاوز 8 ميجابايت.";
+        return;
+      }
+      const data = new FormData();
+      data.append("method", method);
+      data.append("amount_minor", amount);
+      data.append("currency", currency);
+      data.append("reference_note", reference);
+      if (proof) data.append("proof", proof);
+      paymentStatus.textContent = "جارٍ إرسال إثبات الدفع...";
+      try {
+        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/payment-submissions`, {
+          method: "POST", body: data,
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result?.error?.message || "تعذر إرسال إثبات الدفع.");
+        paymentStatus.textContent = "تم استلام إثبات الدفع. ستراجعه الإدارة قبل اعتماد الاشتراك.";
+        paymentPanel.hidden = true;
+      } catch (error) {
+        paymentStatus.textContent = error instanceof Error ? error.message : "حدث خطأ أثناء إرسال الإثبات.";
+      }
+    });
+
     statusForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
       licenseResult.hidden = true;
@@ -88,6 +143,19 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
           expired: "انتهت صلاحية طلب التفعيل",
         };
         statusMessage.textContent = labels[result.status] || `حالة الطلب: ${result.status}`;
+        paymentPanel.hidden = true;
+        if (["proof_verified", "under_review"].includes(result.status)) {
+          if (result.payment_submission?.status === "pending_review") {
+            statusMessage.textContent += " — تم استلام إثبات الدفع وهو قيد المراجعة.";
+          } else if (result.payment_submission?.status === "confirmed") {
+            statusMessage.textContent += " — تم تأكيد استلام الدفع.";
+          } else {
+            paymentPanel.hidden = false;
+            paymentStatus.textContent = result.payment_submission?.status === "rejected"
+              ? "تم رفض الإثبات السابق. يمكنك إرسال إثبات جديد."
+              : "أرسل الإثبات بعد الاتفاق مع الإدارة على المبلغ.";
+          }
+        }
         if (result.status === "approved" && result.license) {
           const license = result.license;
           const envelope = {
