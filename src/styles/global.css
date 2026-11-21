@@ -19,3 +19,12 @@
 .request-result span{font-family:ui-monospace,monospace;direction:ltr;overflow-wrap:anywhere}
 .text-action{border:0;background:transparent;color:var(--green-2);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
 .status-form{background:rgba(255,253,247,.7)}
+
+.release-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0 24px}
+.release-card{padding:17px;border:1px solid var(--line);border-radius:16px;background:var(--paper);display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+.release-card h3{margin:0;color:var(--green);font-size:1rem}
+.release-card p{margin:0;font-size:.8rem}
+.release-version{font-weight:800;color:var(--green)}
+.release-card .button{margin-top:5px}
+.release-notes{line-height:1.7}
+@media(max-width:760px){.release-list{grid-template-columns:1fr}}
