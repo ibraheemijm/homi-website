@@ -3,5 +3,77 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 ---
 <BaseLayout lang="en" title="Homi Grocery" description="The Homi grocery store management application.">
   <section class="page-hero"><div class="container"><span class="eyebrow">Store management</span><h1>Homi Grocery</h1><p class="lead">Connected daily operations for grocery stores, with a local-first workflow and Arabic interface.</p></div></section>
-  <section class="section"><div class="container app-feature"><div><div class="app-preview" aria-hidden="true">▦</div></div><div><h2>Your store operations in one place.</h2><p class="muted">Homi Grocery brings core store operations together while keeping store data local.</p><ul class="list-check"><li>Sales, invoices, and payment methods</li><li>Products, inventory, and stock movements</li><li>Customers, balances, and collections</li><li>Suppliers, purchases, and payments</li><li>Cashbox, reports, and printing</li><li>Backup and restore</li></ul><div class="notice">Download links will be published after the release catalogue is connected and installation packages are verified.</div><div class="actions"><a class="button button-primary" href="/en/activation/">Activation information</a><a class="button button-secondary" href="tel:+2490904697455">Contact support</a></div></div></div></section>
+  <section class="section"><div class="container app-feature"><div><div class="app-preview" aria-hidden="true">▦</div></div><div><h2>Your store operations in one place.</h2><p class="muted">Homi Grocery brings core store operations together while keeping store data local.</p><ul class="list-check"><li>Sales, invoices, and payment methods</li><li>Products, inventory, and stock movements</li><li>Customers, balances, and collections</li><li>Suppliers, purchases, and payments</li><li>Cashbox, reports, and printing</li><li>Backup and restore</li></ul><div id="release-list" class="release-list" aria-live="polite"><p class="muted">Loading application releases...</p></div><div class="actions"><a class="button button-primary" href="/en/activation/">Activation information</a><a class="button button-secondary" href="tel:+2490904697455">Contact support</a></div></div></div></section>
+
+  <script>
+    const apiBase = (import.meta.env.PUBLIC_HOMI_API_BASE_URL || "").replace(/\/$/, "");
+    const releaseList = document.querySelector<HTMLDivElement>("#release-list")!;
+    const targets = [
+      { platform: "android", architecture: "arm64-v8a", label: "Android" },
+      { platform: "windows", architecture: "x64", label: "Windows" },
+      { platform: "linux", architecture: "x64", label: "Linux" },
+    ];
+    const showMessage = (message: string) => {
+      const p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = message;
+      releaseList.replaceChildren(p);
+    };
+    const loadReleases = async () => {
+      if (!apiBase) {
+        showMessage("Release catalogue is not connected yet.");
+        return;
+      }
+      releaseList.replaceChildren();
+      for (const target of targets) {
+        const card = document.createElement("article");
+        card.className = "release-card";
+        const title = document.createElement("h3");
+        title.textContent = target.label;
+        card.append(title);
+        try {
+          const query = new URLSearchParams({
+            platform_key: target.platform,
+            architecture_key: target.architecture,
+            channel: "stable",
+          });
+          const response = await fetch(`${apiBase}/api/v1/public/products/homi-grocery/releases/latest?${query.toString()}`);
+          const result = await response.json();
+          if (!response.ok) {
+            const unavailable = document.createElement("p");
+            unavailable.className = "muted";
+            unavailable.textContent = "No stable package is published yet.";
+            card.append(unavailable);
+          } else {
+            const version = document.createElement("p");
+            version.className = "release-version";
+            version.textContent = `v${result.release.version} · Build ${result.release.build_number}`;
+            const size = document.createElement("p");
+            size.className = "muted";
+            size.textContent = `${(result.asset.size_bytes / (1024 * 1024)).toFixed(1)} MB · ${result.asset.architecture_key}`;
+            const download = document.createElement("a");
+            download.className = "button button-primary";
+            download.href = new URL(result.asset.download_url, apiBase).toString();
+            download.textContent = "Download";
+            download.setAttribute("download", result.asset.file_name);
+            card.append(version, size, download);
+            const notes = result.release.release_notes_en;
+            if (notes) {
+              const note = document.createElement("p");
+              note.className = "muted release-notes";
+              note.textContent = notes;
+              card.append(note);
+            }
+          }
+        } catch {
+          const unavailable = document.createElement("p");
+          unavailable.className = "muted";
+          unavailable.textContent = "Could not connect to the release catalogue.";
+          card.append(unavailable);
+        }
+        releaseList.append(card);
+      }
+    };
+    void loadReleases();
+  </script>
 </BaseLayout>
