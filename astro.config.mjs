@@ -1,2 +1,6 @@
 import { defineConfig } from "astro/config";
-export default defineConfig({ output: "static", site: "https://homi.example", build: { format: "directory" } });
+
+export default defineConfig({
+  output: "static",
+  build: { format: "directory" }
+});
