@@ -30,14 +30,14 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
   </div></section>
   <script>
     const apiBase = (import.meta.env.PUBLIC_HOMI_API_BASE_URL || "").replace(/\/$/, "");
-    const uploadForm = document.querySelector("#hreq-upload-form");
-    const fileInput = document.querySelector("#hreq-file");
-    const uploadStatus = document.querySelector("#hreq-upload-status");
-    const requestResult = document.querySelector("#hreq-request-result");
-    const statusForm = document.querySelector("#activation-status-form");
-    const requestIdInput = document.querySelector("#activation-request-id");
-    const statusMessage = document.querySelector("#activation-status-message");
-    const licenseResult = document.querySelector("#license-download-result");
+    const uploadForm = document.querySelector<HTMLFormElement>("#hreq-upload-form")!;
+    const fileInput = document.querySelector<HTMLInputElement>("#hreq-file")!;
+    const uploadStatus = document.querySelector<HTMLElement>("#hreq-upload-status")!;
+    const requestResult = document.querySelector<HTMLDivElement>("#hreq-request-result")!;
+    const statusForm = document.querySelector<HTMLFormElement>("#activation-status-form")!;
+    const requestIdInput = document.querySelector<HTMLInputElement>("#activation-request-id")!;
+    const statusMessage = document.querySelector<HTMLElement>("#activation-status-message")!;
+    const licenseResult = document.querySelector<HTMLDivElement>("#license-download-result")!;
 
     uploadForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
