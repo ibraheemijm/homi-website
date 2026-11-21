@@ -7,8 +7,80 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     <div><div class="app-preview" aria-hidden="true">▦</div></div>
     <div><h2>كل عمليات متجرك في مكان واحد.</h2><p class="muted">يجمع Homi Grocery العمليات الأساسية في تطبيق واحد، مع المحافظة على بيانات المتجر محليًا.</p>
       <ul class="list-check"><li>المبيعات والفواتير وطرق الدفع</li><li>الأصناف والمخزون وحركاته</li><li>العملاء ودفتر الديون والتحصيلات</li><li>الموردون والمشتريات والمدفوعات</li><li>الخزينة والتقارير والطباعة</li><li>النسخ الاحتياطي والاستعادة</li></ul>
-      <div class="notice">روابط التنزيل ستظهر بعد ربط كتالوج الإصدارات والتحقق من حزم التثبيت في المنصة.</div>
+            <div id="release-list" class="release-list" aria-live="polite"><p class="muted">جارٍ تحميل إصدارات التطبيق...</p></div>
       <div class="actions"><a class="button button-primary" href="/activation/">معلومات التفعيل</a><a class="button button-secondary" href="tel:+2490904697455">اتصل بالدعم</a></div>
     </div>
   </div></section>
+
+  <script>
+    const apiBase = (import.meta.env.PUBLIC_HOMI_API_BASE_URL || "").replace(/\/$/, "");
+    const releaseList = document.querySelector<HTMLDivElement>("#release-list")!;
+    const targets = [
+      { platform: "android", architecture: "arm64-v8a", label: "Android" },
+      { platform: "windows", architecture: "x64", label: "Windows" },
+      { platform: "linux", architecture: "x64", label: "Linux" },
+    ];
+    const showMessage = (message: string) => {
+      const p = document.createElement("p");
+      p.className = "muted";
+      p.textContent = message;
+      releaseList.replaceChildren(p);
+    };
+    const loadReleases = async () => {
+      if (!apiBase) {
+        showMessage("كتالوج التنزيل غير مرتبط بعد.");
+        return;
+      }
+      releaseList.replaceChildren();
+      for (const target of targets) {
+        const card = document.createElement("article");
+        card.className = "release-card";
+        const title = document.createElement("h3");
+        title.textContent = target.label;
+        card.append(title);
+        try {
+          const query = new URLSearchParams({
+            platform_key: target.platform,
+            architecture_key: target.architecture,
+            channel: "stable",
+          });
+          const response = await fetch(`${apiBase}/api/v1/public/products/homi-grocery/releases/latest?${query.toString()}`);
+          const result = await response.json();
+          if (!response.ok) {
+            const unavailable = document.createElement("p");
+            unavailable.className = "muted";
+            unavailable.textContent = "لا توجد حزمة مستقرة منشورة لهذا النظام حاليًا.";
+            card.append(unavailable);
+          } else {
+            const version = document.createElement("p");
+            version.className = "release-version";
+            version.textContent = `v${result.release.version} · Build ${result.release.build_number}`;
+            const size = document.createElement("p");
+            size.className = "muted";
+            size.textContent = `${(result.asset.size_bytes / (1024 * 1024)).toFixed(1)} MB · ${result.asset.architecture_key}`;
+            const download = document.createElement("a");
+            download.className = "button button-primary";
+            download.href = new URL(result.asset.download_url, apiBase).toString();
+            download.textContent = "تنزيل التطبيق";
+            download.setAttribute("download", result.asset.file_name);
+            card.append(version, size, download);
+            const notes = result.release.release_notes_ar;
+            if (notes) {
+              const note = document.createElement("p");
+              note.className = "muted release-notes";
+              note.textContent = notes;
+              card.append(note);
+            }
+          }
+        } catch {
+          const unavailable = document.createElement("p");
+          unavailable.className = "muted";
+          unavailable.textContent = "تعذر الاتصال بكتالوج الإصدارات.";
+          card.append(unavailable);
+        }
+        releaseList.append(card);
+      }
+    };
+    void loadReleases();
+  </script>
 </BaseLayout>
