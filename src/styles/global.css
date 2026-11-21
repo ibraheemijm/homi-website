@@ -7,3 +7,15 @@
 .site-footer{background:#102e26;color:#e9e8dd;padding:58px 0 20px}.footer-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:36px}.footer-brand{color:var(--cream)}.footer-brand .brand-mark{background:var(--gold);color:var(--green)}.site-footer p{max-width:360px;color:#b8c5bd}.footer-links{display:grid;gap:8px;align-content:start}.site-footer a:not(.brand){display:block;color:#d4ddd7}.footer-bottom{border-top:1px solid rgba(255,255,255,.14);margin-top:38px;padding-top:16px;color:#9fb1a7;font-size:.88rem}
 @media(max-width:820px){.header-inner{flex-wrap:wrap;padding:12px 0;gap:12px}nav{order:3;width:100%;overflow-x:auto;padding:4px 0;gap:20px;white-space:nowrap}.header-contact{padding:8px 14px}.hero-grid,.app-feature{grid-template-columns:1fr;gap:24px}.hero-art{min-height:300px}.cards{grid-template-columns:1fr}.band-inner{align-items:flex-start;flex-direction:column}.footer-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.container{width:min(100% - 28px,1160px)}.hero{padding:68px 0}.section{padding:64px 0}.footer-grid{grid-template-columns:1fr}}
+
+.activation-form{margin:20px 0 34px;padding:22px;background:var(--paper);border:1px solid var(--line);border-radius:20px;display:grid;gap:13px;max-width:680px;box-shadow:0 12px 40px rgba(23,61,50,.035)}
+.activation-form label{display:grid;gap:7px;color:var(--green);font-size:.9rem;font-weight:700}
+.activation-form input{width:100%;min-width:0;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink);font:inherit}
+.activation-form input:focus{outline:2px solid rgba(199,163,90,.35);border-color:var(--gold)}
+.activation-form .button{justify-self:start;cursor:pointer;border:0}
+.form-status{margin:0;color:var(--muted);font-size:.84rem}
+.request-result{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:14px;border-radius:12px;background:#edf3ed;border:1px solid #d5e4d7;color:var(--green)}
+.request-result[hidden]{display:none}
+.request-result span{font-family:ui-monospace,monospace;direction:ltr;overflow-wrap:anywhere}
+.text-action{border:0;background:transparent;color:var(--green-2);font:inherit;font-weight:800;text-decoration:underline;cursor:pointer}
+.status-form{background:rgba(255,253,247,.7)}
