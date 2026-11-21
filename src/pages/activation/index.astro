@@ -78,7 +78,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/status`);
         const result = await response.json();
         if (!response.ok) throw new Error(result?.error?.message || "تعذر قراءة حالة الطلب.");
-        const labels = {
+        const labels: Record<string, string> = {
           pending_proof: "بانتظار إثبات الجهاز",
           proof_verified: "تم التحقق من الجهاز والطلب بانتظار مراجعة الإدارة",
           under_review: "طلبك قيد المراجعة",
