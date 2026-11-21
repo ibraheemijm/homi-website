@@ -1,10 +1,11 @@
 ---
 import "../styles/global.css";
-interface Props { title: string; description?: string; }
-const { title, description = "منظومة Homi — أدوات عملية لإدارة الأعمال." } = Astro.props;
+interface Props { title: string; description?: string; lang?: "ar" | "en"; }
+const { title, description = "Homi — practical software for everyday business.", lang = "ar" } = Astro.props;
+const ar = lang === "ar";
 ---
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang={lang} dir={ar ? "rtl" : "ltr"}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,21 +17,32 @@ const { title, description = "منظومة Homi — أدوات عملية لإد
   <body>
     <header class="site-header">
       <div class="container header-inner">
-        <a class="brand" href="/" aria-label="Homi"><span class="brand-mark">H</span><span>Homi</span></a>
-        <nav aria-label="التنقل الرئيسي">
-          <a href="/">الرئيسية</a><a href="/apps/">التطبيقات</a><a href="/activation/">التفعيل</a><a href="/faq/">الأسئلة الشائعة</a>
+        <a class="brand" href={ar ? "/" : "/en/"} aria-label="Homi"><span class="brand-mark">H</span><span>Homi</span></a>
+        <nav aria-label={ar ? "التنقل الرئيسي" : "Main navigation"}>
+          <a href={ar ? "/" : "/en/"}>{ar ? "الرئيسية" : "Home"}</a>
+          <a href={ar ? "/apps/" : "/en/apps/"}>{ar ? "التطبيقات" : "Apps"}</a>
+          <a href={ar ? "/activation/" : "/en/activation/"}>{ar ? "التفعيل" : "Activation"}</a>
+          <a href={ar ? "/faq/" : "/en/faq/"}>{ar ? "الأسئلة الشائعة" : "FAQ"}</a>
         </nav>
-        <a class="header-contact" href="tel:+2490904697455">تواصل معنا</a>
+        <div class="header-actions">
+          <a class="language-link" href={ar ? "/en/" : "/"}>{ar ? "EN" : "عربي"}</a>
+          <a class="header-contact" href="tel:+2490904697455">{ar ? "تواصل معنا" : "Contact"}</a>
+        </div>
       </div>
     </header>
     <main><slot /></main>
     <footer class="site-footer">
       <div class="container footer-grid">
-        <div><a class="brand footer-brand" href="/"><span class="brand-mark">H</span><span>Homi</span></a><p>منظومة تطبيقات عملية تساعد الأعمال على العمل بوضوح وكفاءة.</p></div>
-        <div class="footer-links"><a href="/apps/">التطبيقات</a><a href="/activation/">التفعيل والاشتراكات</a><a href="/terms/">الشروط</a><a href="/privacy/">الخصوصية</a></div>
-        <div><strong>الدعم والتواصل</strong><a href="tel:+2490904697455" dir="ltr">+249 090 469 7455</a></div>
+        <div><a class="brand footer-brand" href={ar ? "/" : "/en/"}><span class="brand-mark">H</span><span>Homi</span></a><p>{ar ? "منظومة تطبيقات عملية تساعد الأعمال على العمل بوضوح وكفاءة." : "Practical software that helps businesses work with clarity and efficiency."}</p></div>
+        <div class="footer-links">
+          <a href={ar ? "/apps/" : "/en/apps/"}>{ar ? "التطبيقات" : "Apps"}</a>
+          <a href={ar ? "/activation/" : "/en/activation/"}>{ar ? "التفعيل والاشتراكات" : "Activation"}</a>
+          <a href={ar ? "/terms/" : "/terms/"}>{ar ? "الشروط" : "Terms"}</a>
+          <a href={ar ? "/privacy/" : "/privacy/"}>{ar ? "الخصوصية" : "Privacy"}</a>
+        </div>
+        <div><strong>{ar ? "الدعم والتواصل" : "Support"}</strong><a href="tel:+2490904697455" dir="ltr">+249 090 469 7455</a></div>
       </div>
-      <div class="container footer-bottom">© {new Date().getFullYear()} Homi. جميع الحقوق محفوظة.</div>
+      <div class="container footer-bottom">© {new Date().getFullYear()} Homi. {ar ? "جميع الحقوق محفوظة." : "All rights reserved."}</div>
     </footer>
   </body>
 </html>
