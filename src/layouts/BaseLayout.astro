@@ -1,0 +1,36 @@
+---
+import "../styles/global.css";
+interface Props { title: string; description?: string; }
+const { title, description = "منظومة Homi — أدوات عملية لإدارة الأعمال." } = Astro.props;
+---
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#173D32" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title} | Homi</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="/" aria-label="Homi"><span class="brand-mark">H</span><span>Homi</span></a>
+        <nav aria-label="التنقل الرئيسي">
+          <a href="/">الرئيسية</a><a href="/apps/">التطبيقات</a><a href="/activation/">التفعيل</a><a href="/faq/">الأسئلة الشائعة</a>
+        </nav>
+        <a class="header-contact" href="tel:+2490904697455">تواصل معنا</a>
+      </div>
+    </header>
+    <main><slot /></main>
+    <footer class="site-footer">
+      <div class="container footer-grid">
+        <div><a class="brand footer-brand" href="/"><span class="brand-mark">H</span><span>Homi</span></a><p>منظومة تطبيقات عملية تساعد الأعمال على العمل بوضوح وكفاءة.</p></div>
+        <div class="footer-links"><a href="/apps/">التطبيقات</a><a href="/activation/">التفعيل والاشتراكات</a><a href="/terms/">الشروط</a><a href="/privacy/">الخصوصية</a></div>
+        <div><strong>الدعم والتواصل</strong><a href="tel:+2490904697455" dir="ltr">+249 090 469 7455</a></div>
+      </div>
+      <div class="container footer-bottom">© {new Date().getFullYear()} Homi. جميع الحقوق محفوظة.</div>
+    </footer>
+  </body>
+</html>
