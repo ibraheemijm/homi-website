@@ -21,6 +21,20 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
       <div id="license-download-result" class="request-result" hidden></div>
     </form>
 
+    <div id="payment-submission-panel" hidden>
+      <h2>Submit manual payment evidence</h2>
+      <p>After agreeing the amount with the Homi team, submit the payment details and attach a receipt. Payment is not confirmed automatically.</p>
+      <form id="payment-proof-form" class="activation-form">
+        <label>Payment method<select id="payment-method" required><option value="cash">Cash</option><option value="bank_transfer">Bank transfer</option><option value="other">Other</option></select></label>
+        <label>Agreed amount<input id="payment-amount" type="number" min="1" step="1" required /></label>
+        <label>Currency (3 letters)<input id="payment-currency" type="text" minlength="3" maxlength="3" value="SDG" dir="ltr" required /></label>
+        <label>Transaction reference or notes<input id="payment-reference" type="text" maxlength="500" /></label>
+        <label>Receipt image or PDF (up to 8 MB)<input id="payment-proof" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" /></label>
+        <button class="button button-primary" type="submit">Submit payment evidence for review</button>
+        <p id="payment-submission-status" class="form-status" role="status"></p>
+      </form>
+    </div>
+
     <h2>Approval process</h2>
     <ol><li>The Homi team reviews the customer and device information.</li><li>The team confirms the subscription details and manual payment method with you.</li><li>Paid licenses are issued or extended only after the team confirms receipt of payment.</li><li>After approval, use your request ID above to download the <code>.hlic</code> license file.</li></ol>
     <div class="notice">Subscription prices are not published on this website. Contact the team for current terms.</div>
@@ -38,6 +52,10 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
     const requestIdInput = document.querySelector<HTMLInputElement>("#activation-request-id")!;
     const statusMessage = document.querySelector<HTMLElement>("#activation-status-message")!;
     const licenseResult = document.querySelector<HTMLDivElement>("#license-download-result")!;
+    const paymentPanel = document.querySelector<HTMLDivElement>("#payment-submission-panel")!;
+    const paymentForm = document.querySelector<HTMLFormElement>("#payment-proof-form")!;
+    const paymentStatus = document.querySelector<HTMLElement>("#payment-submission-status")!;
+    const paymentProofInput = document.querySelector<HTMLInputElement>("#payment-proof")!;
 
     uploadForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -68,6 +86,43 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
       }
     });
 
+    paymentForm?.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!apiBase) { paymentStatus.textContent = "Activation service is not connected."; return; }
+      const requestId = requestIdInput.value.trim();
+      const amount = (document.querySelector<HTMLInputElement>("#payment-amount")!).value;
+      const method = (document.querySelector<HTMLSelectElement>("#payment-method")!).value;
+      const currency = (document.querySelector<HTMLInputElement>("#payment-currency")!).value.trim().toUpperCase();
+      const reference = (document.querySelector<HTMLInputElement>("#payment-reference")!).value;
+      const proof = paymentProofInput.files?.[0];
+      if (!requestId || !amount || Number(amount) < 1 || !/^[A-Z]{3}$/.test(currency)) {
+        paymentStatus.textContent = "Enter a valid request ID, amount, and currency.";
+        return;
+      }
+      if (proof && proof.size > 8 * 1024 * 1024) {
+        paymentStatus.textContent = "The receipt file exceeds 8 MB.";
+        return;
+      }
+      const data = new FormData();
+      data.append("method", method);
+      data.append("amount_minor", amount);
+      data.append("currency", currency);
+      data.append("reference_note", reference);
+      if (proof) data.append("proof", proof);
+      paymentStatus.textContent = "Submitting payment evidence...";
+      try {
+        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/payment-submissions`, {
+          method: "POST", body: data,
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result?.error?.message || "Could not submit payment evidence.");
+        paymentStatus.textContent = "Payment evidence received. The Homi team will review it before activation.";
+        paymentPanel.hidden = true;
+      } catch (error) {
+        paymentStatus.textContent = error instanceof Error ? error.message : "An error occurred while submitting evidence.";
+      }
+    });
+
     statusForm?.addEventListener("submit", async (event) => {
       event.preventDefault();
       licenseResult.hidden = true;
@@ -88,6 +143,19 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
           expired: "Activation request expired",
         };
         statusMessage.textContent = labels[result.status] || `Request status: ${result.status}`;
+        paymentPanel.hidden = true;
+        if (["proof_verified", "under_review"].includes(result.status)) {
+          if (result.payment_submission?.status === "pending_review") {
+            statusMessage.textContent += " — Payment evidence received and pending review.";
+          } else if (result.payment_submission?.status === "confirmed") {
+            statusMessage.textContent += " — Payment receipt confirmed.";
+          } else {
+            paymentPanel.hidden = false;
+            paymentStatus.textContent = result.payment_submission?.status === "rejected"
+              ? "The previous evidence was rejected. You may submit a new one."
+              : "Submit payment evidence after agreeing the amount with the Homi team.";
+          }
+        }
         if (result.status === "approved" && result.license) {
           const license = result.license;
           const envelope = {
