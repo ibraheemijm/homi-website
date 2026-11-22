@@ -1,6 +1,8 @@
 name: Website Preview Build
 
 on:
+  push:
+    branches: [foundation/public-site-v1]
   workflow_dispatch:
 
 permissions:
