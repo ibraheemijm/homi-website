@@ -1,2 +1,4 @@
 User-agent: *
 Disallow: /
+
+# Preview is restricted to the project owner.
