@@ -1,190 +1,26 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 ---
-<BaseLayout lang="en" title="Activation and subscriptions" description="Activation information for Homi applications.">
-  <section class="page-hero"><div class="container"><span class="eyebrow">Activation support</span><h1>Activation and subscriptions</h1><p class="lead">Upload your signed Homi request file, track its status, and receive your license after approval.</p></div></section>
+<BaseLayout lang="en" title="Activation and subscriptions" description="How to activate Homi applications using signed license files.">
+  <section class="page-hero"><div class="container"><span class="eyebrow">Activation support</span><h1>Activation and subscriptions</h1><p class="lead">Homi applications are activated and renewed using signed files issued by the Homi team.</p></div></section>
   <section class="content"><div class="container content-narrow">
-    <h2>Upload an activation request</h2>
-    <p>Create a <code>.hreq</code> file from the Homi application on the device you want to activate, then upload it here.</p>
-    <form id="hreq-upload-form" class="activation-form">
-      <label>Activation request file (.hreq)<input id="hreq-file" type="file" accept=".hreq,application/json" required /></label>
-      <button class="button button-primary" type="submit">Submit activation request</button>
-      <p id="hreq-upload-status" class="form-status" role="status">Maximum file size: 64 KB.</p>
-      <div id="hreq-request-result" class="request-result" hidden></div>
-    </form>
-
-    <h2>Track your request and download the license</h2>
-    <form id="activation-status-form" class="activation-form status-form">
-      <label>Activation request ID<input id="activation-request-id" type="text" dir="ltr" placeholder="UUID" required /></label>
-      <button class="button button-secondary" type="submit">Check status</button>
-      <p id="activation-status-message" class="form-status" role="status"></p>
-      <div id="license-download-result" class="request-result" hidden></div>
-    </form>
-
-    <div id="payment-submission-panel" hidden>
-      <h2>Submit manual payment evidence</h2>
-      <p>After agreeing the amount with the Homi team, submit the payment details and attach a receipt. Payment is not confirmed automatically.</p>
-      <form id="payment-proof-form" class="activation-form">
-        <label>Payment method<select id="payment-method" required><option value="cash">Cash</option><option value="bank_transfer">Bank transfer</option><option value="other">Other</option></select></label>
-        <label>Agreed amount<input id="payment-amount" type="number" min="1" step="1" required /></label>
-        <label>Currency (3 letters)<input id="payment-currency" type="text" minlength="3" maxlength="3" value="SDG" dir="ltr" required /></label>
-        <label>Transaction reference or notes<input id="payment-reference" type="text" maxlength="500" /></label>
-        <label>Receipt image or PDF (up to 8 MB)<input id="payment-proof" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" /></label>
-        <button class="button button-primary" type="submit">Submit payment evidence for review</button>
-        <p id="payment-submission-status" class="form-status" role="status"></p>
-      </form>
-    </div>
-
-    <h2>Approval process</h2>
-    <ol><li>The Homi team reviews the customer and device information.</li><li>The team confirms the subscription details and manual payment method with you.</li><li>Paid licenses are issued or extended only after the team confirms receipt of payment.</li><li>After approval, use your request ID above to download the <code>.hlic</code> license file.</li></ol>
-    <div class="notice">Subscription prices are not published on this website. Contact the team for current terms.</div>
-    <h2>Subscription terms</h2><ul><li>Monthly: 30 days.</li><li>Annual: 365 days.</li><li>Lifetime: use of the purchased application version; future updates and support are separate services.</li></ul>
-    <h2>Support</h2><p><a class="button button-primary" href="tel:+2490904697455">+249 090 469 7455</a></p>
-    <p class="muted">Do not share request or license files publicly. License files are bound to the approved device.</p>
+    <h2>Activation steps</h2>
+    <ol>
+      <li>Open the activation screen in the application and create a <code>.hreq</code> request file on the device you want to activate.</li>
+      <li>Send the request file to Homi support through WhatsApp or the agreed contact method.</li>
+      <li>The Homi team reviews the request, confirms the subscription plan and amount, and verifies receipt of payment before issuing a paid license.</li>
+      <li>The team sends you a <code>.hlic</code> license file bound to your device.</li>
+      <li>Open the activation screen, choose “Import license file”, and select the received <code>.hlic</code> file.</li>
+    </ol>
+    <div class="notice"><strong>The application does not need an internet connection to activate.</strong> Creating the request file, importing the license, and verifying its signature are performed locally. Internet or messaging is only needed to exchange the files with Homi support.</div>
+    <h2>Subscription terms</h2>
+    <ul><li>Monthly: 30 days.</li><li>Annual: 365 days.</li><li>Lifetime: use of the purchased application version; future updates and support are separate services.</li></ul>
+    <h2>Payment</h2>
+    <p>Agree on the amount and payment method directly with Homi support. A paid license is not issued or renewed until the team confirms receipt of payment.</p>
+    <h2>Send your request file</h2>
+    <p>Attach your <code>.hreq</code> file to a message sent to the official support number. Do not share request or license files publicly.</p>
+    <p><a class="button button-primary" href="https://wa.me/2490904697455?text=I%20would%20like%20to%20activate%20Homi%20Grocery.%20I%20will%20attach%20my%20.hreq%20activation%20request%20file." target="_blank" rel="noreferrer">Contact Homi on WhatsApp</a></p>
+    <p><a class="button button-secondary" href="tel:+2490904697455">+249 090 469 7455</a></p>
+    <p class="muted">A license file is bound to the device that created the request file. Do not modify its contents or share it with another user.</p>
   </div></section>
-  <script>
-    const apiBase = (import.meta.env.PUBLIC_HOMI_API_BASE_URL || "").replace(/\/$/, "");
-    const uploadForm = document.querySelector<HTMLFormElement>("#hreq-upload-form")!;
-    const fileInput = document.querySelector<HTMLInputElement>("#hreq-file")!;
-    const uploadStatus = document.querySelector<HTMLElement>("#hreq-upload-status")!;
-    const requestResult = document.querySelector<HTMLDivElement>("#hreq-request-result")!;
-    const statusForm = document.querySelector<HTMLFormElement>("#activation-status-form")!;
-    const requestIdInput = document.querySelector<HTMLInputElement>("#activation-request-id")!;
-    const statusMessage = document.querySelector<HTMLElement>("#activation-status-message")!;
-    const licenseResult = document.querySelector<HTMLDivElement>("#license-download-result")!;
-    const paymentPanel = document.querySelector<HTMLDivElement>("#payment-submission-panel")!;
-    const paymentForm = document.querySelector<HTMLFormElement>("#payment-proof-form")!;
-    const paymentStatus = document.querySelector<HTMLElement>("#payment-submission-status")!;
-    const paymentProofInput = document.querySelector<HTMLInputElement>("#payment-proof")!;
-
-    uploadForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      requestResult.hidden = true;
-      const file = fileInput?.files?.[0];
-      if (!apiBase) { uploadStatus.textContent = "Activation service is not connected yet. Please contact support."; return; }
-      if (!file || !file.name.toLowerCase().endsWith(".hreq") || file.size > 64 * 1024) {
-        uploadStatus.textContent = "Choose a valid .hreq file no larger than 64 KB.";
-        return;
-      }
-      uploadStatus.textContent = "Validating and uploading your request...";
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/import`, { method: "POST", body: formData });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result?.error?.message || "Could not submit the request.");
-        if (typeof result?.activation_request_id !== "string" ||
-            !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.activation_request_id)) {
-          throw new Error("The platform response did not contain a valid tracking number.");
-        }
-        requestIdInput.value = result.activation_request_id;
-        requestResult.hidden = false;
-        requestResult.innerHTML = `<strong>Request received</strong><span dir="ltr">${result.activation_request_id}</span><button type="button" id="copy-request-id" class="text-action">Copy request ID</button>`;
-        document.querySelector("#copy-request-id")?.addEventListener("click", async () => {
-          await navigator.clipboard.writeText(result.activation_request_id);
-          uploadStatus.textContent = "Request ID copied.";
-        });
-        uploadStatus.textContent = "Your device signature was verified. Track the request using its ID.";
-      } catch (error) {
-        if (error instanceof TypeError || (error instanceof Error && error.message === "Failed to fetch")) {
-          uploadStatus.textContent = "The connection closed before the response could be read. The request may already be registered; upload the exact same .hreq file again to retrieve its original tracking number safely.";
-        } else {
-          uploadStatus.textContent = error instanceof Error ? error.message : "An error occurred while uploading.";
-        }
-      }
-    });
-
-    paymentForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!apiBase) { paymentStatus.textContent = "Activation service is not connected."; return; }
-      const requestId = requestIdInput.value.trim();
-      const amount = (document.querySelector<HTMLInputElement>("#payment-amount")!).value;
-      const method = (document.querySelector<HTMLSelectElement>("#payment-method")!).value;
-      const currency = (document.querySelector<HTMLInputElement>("#payment-currency")!).value.trim().toUpperCase();
-      const reference = (document.querySelector<HTMLInputElement>("#payment-reference")!).value;
-      const proof = paymentProofInput.files?.[0];
-      if (!requestId || !amount || Number(amount) < 1 || !/^[A-Z]{3}$/.test(currency)) {
-        paymentStatus.textContent = "Enter a valid request ID, amount, and currency.";
-        return;
-      }
-      if (proof && proof.size > 8 * 1024 * 1024) {
-        paymentStatus.textContent = "The receipt file exceeds 8 MB.";
-        return;
-      }
-      const data = new FormData();
-      data.append("method", method);
-      data.append("amount_minor", amount);
-      data.append("currency", currency);
-      data.append("reference_note", reference);
-      if (proof) data.append("proof", proof);
-      paymentStatus.textContent = "Submitting payment evidence...";
-      try {
-        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/payment-submissions`, {
-          method: "POST", body: data,
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result?.error?.message || "Could not submit payment evidence.");
-        paymentStatus.textContent = "Payment evidence received. The Homi team will review it before activation.";
-        paymentPanel.hidden = true;
-      } catch (error) {
-        paymentStatus.textContent = error instanceof Error ? error.message : "An error occurred while submitting evidence.";
-      }
-    });
-
-    statusForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      licenseResult.hidden = true;
-      const requestId = requestIdInput.value.trim();
-      if (!apiBase) { statusMessage.textContent = "Activation service is not connected yet. Please contact support."; return; }
-      statusMessage.textContent = "Checking request status...";
-      try {
-        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/status`);
-        const result = await response.json();
-        if (!response.ok) throw new Error(result?.error?.message || "Could not retrieve request status.");
-        const labels: Record<string, string> = {
-          pending_proof: "Waiting for device proof",
-          proof_verified: "Device verified; waiting for admin review",
-          under_review: "Your request is under review",
-          approved: "Approved; license issued",
-          rejected: "Request rejected. Contact support",
-          cancelled: "Request cancelled",
-          expired: "Activation request expired",
-        };
-        statusMessage.textContent = labels[result.status] || `Request status: ${result.status}`;
-        paymentPanel.hidden = true;
-        if (["proof_verified", "under_review"].includes(result.status)) {
-          if (result.payment_submission?.status === "pending_review") {
-            statusMessage.textContent += " — Payment evidence received and pending review.";
-          } else if (result.payment_submission?.status === "confirmed") {
-            statusMessage.textContent += " — Payment receipt confirmed.";
-          } else {
-            paymentPanel.hidden = false;
-            paymentStatus.textContent = result.payment_submission?.status === "rejected"
-              ? "The previous evidence was rejected. You may submit a new one."
-              : "Submit payment evidence after agreeing the amount with the Homi team.";
-          }
-        }
-        if (result.status === "approved" && result.license) {
-          const license = result.license;
-          const envelope = {
-            format: "HOMI_LICENSE_FILE", format_version: 1, status: "active",
-            license_id: license.id, device_id: license.device_id, key_id: license.key_id,
-            payload: license.payload, signature: license.signature,
-          };
-          const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `Homi-License-${license.id}.hlic`;
-          link.textContent = "Download .hlic license file";
-          link.className = "button button-primary";
-          licenseResult.replaceChildren(link);
-          licenseResult.hidden = false;
-          link.addEventListener("click", () => setTimeout(() => URL.revokeObjectURL(url), 1000), { once: true });
-        }
-      } catch (error) {
-        statusMessage.textContent = error instanceof Error ? error.message : "An error occurred while checking status.";
-      }
-    });
-  </script>
 </BaseLayout>
