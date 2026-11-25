@@ -1,195 +1,26 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 ---
-<BaseLayout title="التفعيل والاشتراكات" description="معلومات تفعيل تطبيقات Homi والاشتراكات.">
-  <section class="page-hero"><div class="container"><span class="eyebrow">مساعدة التفعيل</span><h1>التفعيل والاشتراكات</h1><p class="lead">أرسل ملف طلب التفعيل من تطبيق Homi، وتابع حالة الطلب واستلم ملف الترخيص بعد اعتماد الإدارة.</p></div></section>
+<BaseLayout title="التفعيل والاشتراكات" description="خطوات تفعيل تطبيقات Homi واستيراد ملفات التراخيص.">
+  <section class="page-hero"><div class="container"><span class="eyebrow">مساعدة التفعيل</span><h1>التفعيل والاشتراكات</h1><p class="lead">يتم تفعيل تطبيقات Homi وتجديدها عبر ملفات موقعة تصدرها الإدارة.</p></div></section>
   <section class="content"><div class="container content-narrow">
-    <h2>رفع ملف طلب التفعيل</h2>
-    <p>من داخل التطبيق أنشئ ملف الطلب بامتداد <code>.hreq</code>، ثم ارفعه هنا. يجب أن يكون الملف صادرًا من التطبيق وعلى الجهاز المراد تفعيله.</p>
-    <form id="hreq-upload-form" class="activation-form">
-      <label>ملف طلب التفعيل (.hreq)<input id="hreq-file" type="file" accept=".hreq,application/json" required /></label>
-      <button class="button button-primary" type="submit">إرسال طلب التفعيل</button>
-      <p id="hreq-upload-status" class="form-status" role="status" aria-live="polite">الحد الأقصى لحجم الملف 64 كيلوبايت.</p>
-      <div id="hreq-request-result" class="request-result" hidden></div>
-    </form>
-
-    <h2>متابعة طلب التفعيل واستلام الترخيص</h2>
-    <form id="activation-status-form" class="activation-form status-form">
-      <label>رقم طلب التفعيل<input id="activation-request-id" type="text" inputmode="text" dir="ltr" placeholder="UUID" required /></label>
-      <button class="button button-secondary" type="submit">التحقق من الحالة</button>
-      <p id="activation-status-message" class="form-status" role="status"></p>
-      <div id="license-download-result" class="request-result" hidden></div>
-    </form>
-
-    <div id="payment-submission-panel" hidden>
-      <h2>إرسال إثبات الدفع اليدوي</h2>
-      <p>بعد الاتفاق مع الإدارة على المبلغ، يمكنك إرسال بيانات التحويل أو الدفع النقدي وإرفاق الإيصال. لا يتم اعتماد الدفع تلقائيًا.</p>
-      <form id="payment-proof-form" class="activation-form">
-        <label>طريقة الدفع<select id="payment-method" required><option value="cash">نقدًا</option><option value="bank_transfer">تحويل بنكي</option><option value="other">أخرى</option></select></label>
-        <label>المبلغ المتفق عليه<input id="payment-amount" type="number" min="1" step="1" required /></label>
-        <label>العملة (3 أحرف)<input id="payment-currency" type="text" minlength="3" maxlength="3" value="SDG" dir="ltr" required /></label>
-        <label>مرجع العملية أو ملاحظات<input id="payment-reference" type="text" maxlength="500" /></label>
-        <label>صورة أو PDF للإيصال (حتى 8 MB)<input id="payment-proof" type="file" accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" /></label>
-        <button class="button button-primary" type="submit">إرسال إثبات الدفع للمراجعة</button>
-        <p id="payment-submission-status" class="form-status" role="status"></p>
-      </form>
-    </div>
-
-    <h2>كيف تتم الموافقة؟</h2>
-    <ol><li>يراجع فريق Homi بيانات العميل والجهاز.</li><li>تتواصل الإدارة معك لتأكيد تفاصيل الاشتراك وطريقة الدفع اليدوي.</li><li>لا يصدر الترخيص المدفوع ولا يمدد الاشتراك قبل تأكيد الإدارة استلام المبلغ.</li><li>بعد الموافقة، استخدم رقم الطلب أعلاه لتنزيل ملف الترخيص <code>.hlic</code>.</li></ol>
-    <div class="notice"><strong>ملاحظة:</strong> لا تُعرض أسعار ثابتة هنا. يتم الاتفاق على تفاصيل الاشتراك مباشرة مع الإدارة.</div>
-    <h2>أنواع الاشتراك</h2><ul><li>شهري: 30 يومًا.</li><li>سنوي: 365 يومًا.</li><li>دائم: حق استخدام الإصدار المشترى، بينما التحديثات والدعم خدمات منفصلة.</li></ul>
-    <h2>الدعم والتواصل</h2><p>إذا تعذر رفع الملف أو احتجت مساعدة، اتصل على:</p><p><a class="button button-primary" href="tel:+2490904697455" dir="ltr">+249 090 469 7455</a></p>
-    <p class="muted">لا ترسل ملف الطلب أو الترخيص في مكان عام. ملف الترخيص مرتبط بالجهاز المعتمد.</p>
+    <h2>خطوات التفعيل</h2>
+    <ol>
+      <li>افتح شاشة التفعيل داخل التطبيق وأنشئ ملف طلب التفعيل <code>.hreq</code> على الجهاز المراد تفعيله.</li>
+      <li>أرسل ملف الطلب إلى إدارة Homi عبر WhatsApp أو وسيلة التواصل المتفق عليها.</li>
+      <li>تراجع الإدارة الطلب وتحدد الخطة وقيمة الاشتراك، وتتأكد من استلام الدفع قبل إصدار الترخيص المدفوع.</li>
+      <li>ترسل لك الإدارة ملف الترخيص <code>.hlic</code> المرتبط بجهازك.</li>
+      <li>افتح شاشة التفعيل في التطبيق واختر «استيراد ملف التفعيل» وحدد ملف <code>.hlic</code>.</li>
+    </ol>
+    <div class="notice"><strong>التفعيل لا يحتاج إلى اتصال بالإنترنت داخل التطبيق.</strong> إنشاء ملف الطلب واستيراد ملف الترخيص والتحقق من توقيعه تتم محليًا. يلزم التواصل مع الإدارة لإرسال الملفات واستلامها.</div>
+    <h2>أنواع الاشتراك</h2>
+    <ul><li>شهري: 30 يومًا.</li><li>سنوي: 365 يومًا.</li><li>دائم: حق استخدام الإصدار المشترى، بينما التحديثات والدعم خدمات منفصلة.</li></ul>
+    <h2>الدفع</h2>
+    <p>يتم الاتفاق على المبلغ وطريقة الدفع مباشرة مع الإدارة. لا يصدر الترخيص المدفوع ولا يجدد الاشتراك قبل تأكيد الإدارة استلام المبلغ.</p>
+    <h2>إرسال ملف الطلب والدعم</h2>
+    <p>أرسل ملف <code>.hreq</code> كمرفق إلى رقم الدعم الرسمي، ولا ترسله في مكان عام.</p>
+    <p><a class="button button-primary" href="https://wa.me/2490904697455?text=%D8%A3%D8%B1%D8%BA%D8%A8%20%D9%81%D9%8A%20%D8%AA%D9%81%D8%B9%D9%8A%D9%84%20Homi%20Grocery%20%D8%8C%20%D9%88%D8%B3%D8%A3%D8%B1%D9%81%D9%82%20%D9%85%D9%84%D9%81%20%D8%B7%D9%84%D8%A8%20%D8%A7%D9%84%D8%AA%D9%81%D8%B9%D9%8A%D9%84%20.hreq" target="_blank" rel="noreferrer">التواصل عبر WhatsApp</a></p>
+    <p><a class="button button-secondary" href="tel:+2490904697455" dir="ltr">+249 090 469 7455</a></p>
+    <p class="muted">ملف الترخيص مرتبط بالجهاز الذي أنشأ ملف الطلب. لا تعدّل محتوى الملف أو تشاركه مع مستخدم آخر.</p>
   </div></section>
-  <script>
-    const apiBase = (import.meta.env.PUBLIC_HOMI_API_BASE_URL || "").replace(/\/$/, "");
-    const uploadForm = document.querySelector<HTMLFormElement>("#hreq-upload-form")!;
-    const fileInput = document.querySelector<HTMLInputElement>("#hreq-file")!;
-    const uploadStatus = document.querySelector<HTMLElement>("#hreq-upload-status")!;
-    const requestResult = document.querySelector<HTMLDivElement>("#hreq-request-result")!;
-    const statusForm = document.querySelector<HTMLFormElement>("#activation-status-form")!;
-    const requestIdInput = document.querySelector<HTMLInputElement>("#activation-request-id")!;
-    const statusMessage = document.querySelector<HTMLElement>("#activation-status-message")!;
-    const licenseResult = document.querySelector<HTMLDivElement>("#license-download-result")!;
-    const paymentPanel = document.querySelector<HTMLDivElement>("#payment-submission-panel")!;
-    const paymentForm = document.querySelector<HTMLFormElement>("#payment-proof-form")!;
-    const paymentStatus = document.querySelector<HTMLElement>("#payment-submission-status")!;
-    const paymentProofInput = document.querySelector<HTMLInputElement>("#payment-proof")!;
-
-    uploadForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      requestResult.hidden = true;
-      const file = fileInput?.files?.[0];
-      if (!apiBase) { uploadStatus.textContent = "خدمة التفعيل غير مرتبطة بعد. يرجى التواصل مع الدعم."; return; }
-      if (!file || !file.name.toLowerCase().endsWith(".hreq") || file.size > 64 * 1024) {
-        uploadStatus.textContent = "اختر ملف .hreq صالحًا لا يتجاوز 64 كيلوبايت.";
-        return;
-      }
-      uploadStatus.textContent = "جارٍ التحقق من ملف الطلب وإرساله...";
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/import`, { method: "POST", body: formData });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result?.error?.message || "تعذر إرسال ملف الطلب.");
-        if (typeof result?.activation_request_id !== "string" ||
-            !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.activation_request_id)) {
-          throw new Error("لم تُرجع المنصة رقم متابعة صالحًا للطلب.");
-        }
-        requestIdInput.value = result.activation_request_id;
-        requestResult.hidden = false;
-        requestResult.innerHTML = `<strong>تم تسجيل طلب التفعيل</strong><span dir="ltr">${result.activation_request_id}</span><button type="button" id="copy-request-id" class="text-action">نسخ رقم الطلب</button>`;
-        document.querySelector("#copy-request-id")?.addEventListener("click", async () => {
-          await navigator.clipboard.writeText(result.activation_request_id);
-          uploadStatus.textContent = "تم نسخ رقم الطلب.";
-        });
-        uploadStatus.textContent = "تم استلام الطلب والتحقق من توقيع الجهاز. تابع حالته باستخدام رقم الطلب.";
-      } catch (error) {
-        if (error instanceof TypeError || (error instanceof Error && error.message === "Failed to fetch")) {
-          uploadStatus.textContent = "انقطع الاتصال قبل قراءة الاستجابة. قد يكون الطلب قد سُجل بالفعل؛ أعد رفع ملف .hreq نفسه لاسترجاع رقم المتابعة الأصلي دون إنشاء طلب مكرر.";
-        } else {
-          uploadStatus.textContent = error instanceof Error ? error.message : "حدث خطأ أثناء رفع الملف.";
-        }
-      }
-    });
-
-    paymentForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      if (!apiBase) { paymentStatus.textContent = "خدمة التفعيل غير مرتبطة بعد."; return; }
-      const requestId = requestIdInput.value.trim();
-      const amount = (document.querySelector<HTMLInputElement>("#payment-amount")!).value;
-      const method = (document.querySelector<HTMLSelectElement>("#payment-method")!).value;
-      const currency = (document.querySelector<HTMLInputElement>("#payment-currency")!).value.trim().toUpperCase();
-      const reference = (document.querySelector<HTMLInputElement>("#payment-reference")!).value;
-      const proof = paymentProofInput.files?.[0];
-      if (!requestId || !amount || Number(amount) < 1 || !/^[A-Z]{3}$/.test(currency)) {
-        paymentStatus.textContent = "أدخل رقم الطلب والمبلغ والعملة بصورة صحيحة.";
-        return;
-      }
-      if (proof && proof.size > 8 * 1024 * 1024) {
-        paymentStatus.textContent = "حجم الإيصال يتجاوز 8 ميجابايت.";
-        return;
-      }
-      const data = new FormData();
-      data.append("method", method);
-      data.append("amount_minor", amount);
-      data.append("currency", currency);
-      data.append("reference_note", reference);
-      if (proof) data.append("proof", proof);
-      paymentStatus.textContent = "جارٍ إرسال إثبات الدفع...";
-      try {
-        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/payment-submissions`, {
-          method: "POST", body: data,
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result?.error?.message || "تعذر إرسال إثبات الدفع.");
-        paymentStatus.textContent = "تم استلام إثبات الدفع. ستراجعه الإدارة قبل اعتماد الاشتراك.";
-        paymentPanel.hidden = true;
-      } catch (error) {
-        paymentStatus.textContent = error instanceof Error ? error.message : "حدث خطأ أثناء إرسال الإثبات.";
-      }
-    });
-
-    statusForm?.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      licenseResult.hidden = true;
-      const requestId = requestIdInput.value.trim();
-      if (!apiBase) { statusMessage.textContent = "خدمة التفعيل غير مرتبطة بعد. يرجى التواصل مع الدعم."; return; }
-      statusMessage.textContent = "جارٍ التحقق من حالة الطلب...";
-      try {
-        const response = await fetch(`${apiBase}/api/v1/public/activation-requests/${encodeURIComponent(requestId)}/status`);
-        const result = await response.json();
-        if (!response.ok) throw new Error(result?.error?.message || "تعذر قراءة حالة الطلب.");
-        const labels: Record<string, string> = {
-          pending_proof: "بانتظار إثبات الجهاز",
-          proof_verified: "تم التحقق من الجهاز والطلب بانتظار مراجعة الإدارة",
-          under_review: "طلبك قيد المراجعة",
-          approved: "تمت الموافقة على الطلب وإصدار الترخيص",
-          rejected: "تم رفض الطلب. يرجى التواصل مع الدعم",
-          cancelled: "تم إلغاء الطلب",
-          expired: "انتهت صلاحية طلب التفعيل",
-        };
-        statusMessage.textContent = labels[result.status] || `حالة الطلب: ${result.status}`;
-        paymentPanel.hidden = true;
-        if (["proof_verified", "under_review"].includes(result.status)) {
-          if (result.payment_submission?.status === "pending_review") {
-            statusMessage.textContent += " — تم استلام إثبات الدفع وهو قيد المراجعة.";
-          } else if (result.payment_submission?.status === "confirmed") {
-            statusMessage.textContent += " — تم تأكيد استلام الدفع.";
-          } else {
-            paymentPanel.hidden = false;
-            paymentStatus.textContent = result.payment_submission?.status === "rejected"
-              ? "تم رفض الإثبات السابق. يمكنك إرسال إثبات جديد."
-              : "أرسل الإثبات بعد الاتفاق مع الإدارة على المبلغ.";
-          }
-        }
-        if (result.status === "approved" && result.license) {
-          const license = result.license;
-          const envelope = {
-            format: "HOMI_LICENSE_FILE",
-            format_version: 1,
-            status: "active",
-            license_id: license.id,
-            device_id: license.device_id,
-            key_id: license.key_id,
-            payload: license.payload,
-            signature: license.signature,
-          };
-          const blob = new Blob([JSON.stringify(envelope, null, 2)], { type: "application/json" });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `Homi-License-${license.id}.hlic`;
-          link.textContent = "تنزيل ملف الترخيص .hlic";
-          link.className = "button button-primary";
-          licenseResult.replaceChildren(link);
-          licenseResult.hidden = false;
-          link.addEventListener("click", () => setTimeout(() => URL.revokeObjectURL(url), 1000), { once: true });
-        }
-      } catch (error) {
-        statusMessage.textContent = error instanceof Error ? error.message : "حدث خطأ أثناء التحقق.";
-      }
-    });
-  </script>
 </BaseLayout>
