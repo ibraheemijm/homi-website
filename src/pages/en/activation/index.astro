@@ -73,6 +73,10 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
         const response = await fetch(`${apiBase}/api/v1/public/activation-requests/import`, { method: "POST", body: formData });
         const result = await response.json();
         if (!response.ok) throw new Error(result?.error?.message || "Could not submit the request.");
+        if (typeof result?.activation_request_id !== "string" ||
+            !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.activation_request_id)) {
+          throw new Error("The platform response did not contain a valid tracking number.");
+        }
         requestIdInput.value = result.activation_request_id;
         requestResult.hidden = false;
         requestResult.innerHTML = `<strong>Request received</strong><span dir="ltr">${result.activation_request_id}</span><button type="button" id="copy-request-id" class="text-action">Copy request ID</button>`;
@@ -82,7 +86,11 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
         });
         uploadStatus.textContent = "Your device signature was verified. Track the request using its ID.";
       } catch (error) {
-        uploadStatus.textContent = error instanceof Error ? error.message : "An error occurred while uploading.";
+        if (error instanceof TypeError || (error instanceof Error && error.message === "Failed to fetch")) {
+          uploadStatus.textContent = "The connection closed before the response could be read. The request may already be registered; upload the exact same .hreq file again to retrieve its original tracking number safely.";
+        } else {
+          uploadStatus.textContent = error instanceof Error ? error.message : "An error occurred while uploading.";
+        }
       }
     });
 
