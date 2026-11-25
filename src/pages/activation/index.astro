@@ -73,6 +73,10 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         const response = await fetch(`${apiBase}/api/v1/public/activation-requests/import`, { method: "POST", body: formData });
         const result = await response.json();
         if (!response.ok) throw new Error(result?.error?.message || "تعذر إرسال ملف الطلب.");
+        if (typeof result?.activation_request_id !== "string" ||
+            !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(result.activation_request_id)) {
+          throw new Error("لم تُرجع المنصة رقم متابعة صالحًا للطلب.");
+        }
         requestIdInput.value = result.activation_request_id;
         requestResult.hidden = false;
         requestResult.innerHTML = `<strong>تم تسجيل طلب التفعيل</strong><span dir="ltr">${result.activation_request_id}</span><button type="button" id="copy-request-id" class="text-action">نسخ رقم الطلب</button>`;
@@ -82,7 +86,11 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
         });
         uploadStatus.textContent = "تم استلام الطلب والتحقق من توقيع الجهاز. تابع حالته باستخدام رقم الطلب.";
       } catch (error) {
-        uploadStatus.textContent = error instanceof Error ? error.message : "حدث خطأ أثناء رفع الملف.";
+        if (error instanceof TypeError || (error instanceof Error && error.message === "Failed to fetch")) {
+          uploadStatus.textContent = "انقطع الاتصال قبل قراءة الاستجابة. قد يكون الطلب قد سُجل بالفعل؛ أعد رفع ملف .hreq نفسه لاسترجاع رقم المتابعة الأصلي دون إنشاء طلب مكرر.";
+        } else {
+          uploadStatus.textContent = error instanceof Error ? error.message : "حدث خطأ أثناء رفع الملف.";
+        }
       }
     });
 
