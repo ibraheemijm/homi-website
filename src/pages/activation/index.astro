@@ -9,7 +9,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
     <form id="hreq-upload-form" class="activation-form">
       <label>ملف طلب التفعيل (.hreq)<input id="hreq-file" type="file" accept=".hreq,application/json" required /></label>
       <button class="button button-primary" type="submit">إرسال طلب التفعيل</button>
-      <p id="hreq-upload-status" class="form-status" role="status">الحد الأقصى لحجم الملف 64 كيلوبايت.</p>
+      <p id="hreq-upload-status" class="form-status" role="status" aria-live="polite">الحد الأقصى لحجم الملف 64 كيلوبايت.</p>
       <div id="hreq-request-result" class="request-result" hidden></div>
     </form>
 
