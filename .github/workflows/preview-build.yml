@@ -1,0 +1,37 @@
+name: Website Preview Build
+
+on:
+  push:
+    branches: [foundation/public-site-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install
+      - name: Check website
+        env:
+          PUBLIC_HOMI_API_BASE_URL: https://foundation-platform-api-v1.homi-platform-api-test.pages.dev
+        run: npm run check
+      - name: Build website for Preview
+        env:
+          PUBLIC_HOMI_API_BASE_URL: https://foundation-platform-api-v1.homi-platform-api-test.pages.dev
+        run: npm run build
+      - name: Upload website static site
+        uses: actions/upload-artifact@v4
+        with:
+          name: homi-website-preview-site
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
