@@ -22,11 +22,11 @@ jobs:
         run: npm install
       - name: Check website
         env:
-          PUBLIC_HOMI_API_BASE_URL: https://homi-platform-api-preview.cvora.workers.dev
+          PUBLIC_HOMI_API_BASE_URL: https://foundation-platform-api-v1.homi-platform-api-test.pages.dev
         run: npm run check
       - name: Build website for Preview
         env:
-          PUBLIC_HOMI_API_BASE_URL: https://homi-platform-api-preview.cvora.workers.dev
+          PUBLIC_HOMI_API_BASE_URL: https://foundation-platform-api-v1.homi-platform-api-test.pages.dev
         run: npm run build
       - name: Upload website static site
         uses: actions/upload-artifact@v4
